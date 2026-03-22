@@ -4,7 +4,7 @@
 ## Anggota Kelompok
 | Nama           | NRP        | Kelas     |
 | ---            | ---        | ----------|
-|                |            |           |
+| Rynofaldi Damario Dzaki               | 5025231042           |  D         |
 |                |            |           |
 
 ## Link Youtube (Unlisted)
