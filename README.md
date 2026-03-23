@@ -5,7 +5,7 @@
 | Nama           | NRP        | Kelas     |
 | ---            | ---        | ----------|
 | Rynofaldi Damario Dzaki               | 5025231042           |  D         |
-|                |            |           |
+| Naufal Dariskarim| 5025231027           | D          |
 
 ## Link Youtube (Unlisted)
 Link ditaruh di bawah ini
