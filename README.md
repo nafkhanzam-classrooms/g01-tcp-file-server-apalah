@@ -101,37 +101,53 @@ Eksklusif digunakan untuk File: [server-poll.py](file:///c:/SMT%206/Progjar/G01/
 **Server**
 <img width="895" height="275" alt="image" src="https://github.com/user-attachments/assets/da17c42d-a7ba-45ae-8c70-939efcd43e3f" />
 
+
 **Client 1**
 <img width="839" height="340" alt="image" src="https://github.com/user-attachments/assets/42b0c5fd-bdc6-440f-8af6-38ace698e259" />
+
 
 **Client 2**
 <img width="828" height="318" alt="image" src="https://github.com/user-attachments/assets/45bb5dd6-e59d-432a-b9d7-cd17d0227f91" />
 
+
 **Client 3**
 <img width="827" height="299" alt="image" src="https://github.com/user-attachments/assets/8d33561b-da96-4dfd-b273-6b5911e40076" />
+
 
 **Files**
 <img width="356" height="116" alt="image" src="https://github.com/user-attachments/assets/05c762b4-22bf-4feb-94aa-ffa838f4f709" />
 
 
+
 ### Server Select
+
+**Server**
+<img width="902" height="286" alt="image" src="https://github.com/user-attachments/assets/6ad4eae8-7ef7-4744-8426-50619ce6098b" />
+
+
+**Client 1**
+<img width="879" height="291" alt="image" src="https://github.com/user-attachments/assets/31c6a282-d410-419d-baaf-1e948167ec12" />
+
+
+**Client 2**
+<img width="846" height="257" alt="image" src="https://github.com/user-attachments/assets/09cf8673-1d26-4156-b204-1657339951e2" />
+
+
+**Client 3**
+<img width="845" height="256" alt="image" src="https://github.com/user-attachments/assets/13721ab8-efed-4d74-824d-71b816cab689" />
+
+
+**Files**
+<img width="377" height="172" alt="image" src="https://github.com/user-attachments/assets/7648e933-6195-41ce-b065-cfacd3961348" />
+
+
+### Server Poll
 
 **Server**
 
 
 **Client 1**
 
-
-**Client 2**
-
-**Client 3**
-
-**Files**
-
-
-### Server Poll
-
-**Client 1**
 **Client 2**
 **Client 3**
 **Files**
