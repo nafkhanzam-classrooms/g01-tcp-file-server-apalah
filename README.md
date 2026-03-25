@@ -8,7 +8,6 @@
 | Naufal Dariskarim| 5025231027           | D          |
 
 ## Link Youtube (Unlisted)
-Link ditaruh di bawah ini
 
 Link Youtube : https://www.youtube.com/watch?v=O-EzFnm3Q_c
 
