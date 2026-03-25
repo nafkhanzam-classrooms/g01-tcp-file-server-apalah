@@ -15,73 +15,84 @@ Link ditaruh di bawah ini
 
 ## Penjelasan Program
 
-# Penjelasan Kode TCP File Server & Panduan Testing
+# Penjelasan Kode TCP File Server (G01)
 
-Tugas **TCP File Server** ini mengimplementasikan satu klien ([client.py](file:///c:/SMT%206/Progjar/G01/client.py)) dan empat jenis server yang berbeda secara fundamental dalam menangani banyak *client* (klien). Berikut adalah penjelasan struktur, logika kode, serta cara kerjanya.
-
----
-
-## 1. Protokol Komunikasi (Application Layer)
-Semua file ([client](file:///c:/SMT%206/Progjar/G01/server-thread.py#97-143) dan `server`) berkomunikasi menggunakan TCP pada port `9000` dengan protokol teks dan biner buatan sendiri:
-
-1. **Format Perintah Dasar:** Perintah dikirim sebagai string teks diakhiri dengan karakter newline (`\n`). Contoh: `/list\n`, `/download file.txt\n`.
-2. **Transfer File (Download/Upload):** Berbeda dengan perintah teks biasa, transfer file juga mengirimkan ukuran file (byte) sebelum isi filenya agar penerima tahu kapan harus berhenti membaca buffer.
+Laporan ini berisi penjelasan singkat dan sederhana mengenai sistem **TCP File Server** yang telah diimplementasikan. Program ini terdiri dari satu file klien (Client) dan empat variasi file Server. Fungsi utamanya adalah menangani command `/list`, `/upload`, dan `/download`.
 
 ---
 
-## 2. Penjelasan File dan Fungsinya
+## 1. Penjelasan Masing-Masing File
 
-### A. [client.py](file:///c:/SMT%206/Progjar/G01/client.py)
-Ini adalah antarmuka interaktif (REPL - Read Eval Print Loop) untuk pengguna.
-*   **Fungsi Kunci:**
-    *   [recv_line()](file:///c:/SMT%206/Progjar/G01/server-sync.py#17-26): Digunakan untuk membaca respon server baris demi baris (sampai ketemu `\n`).
-    *   [recv_exact(n)](file:///c:/SMT%206/Progjar/G01/server-sync.py#27-36): Membaca secara eksak sebanyak `n` byte dari socket. Sangat penting digunakan saat mendownload file, karena kita tidak bisa mengandalkan [recv()](file:///c:/SMT%206/Progjar/G01/server-sync.py#17-26) biasa (bisa terpotong di tengah jalan karena MTU batasan jaringan).
-    *   [cmd_upload()](file:///c:/SMT%206/Progjar/G01/client.py#59-93): Membaca ukuran file lokal menggunakan `os.path.getsize()`, mengirimkan `/upload <nama>`, menunggu `READY` dari server, mengirim ukuran, lalu mengirim byte file secara berkelanjutan (`chunk`).
-*   **Thread Receive:** [client.py](file:///c:/SMT%206/Progjar/G01/client.py) memiliki thread terpisah [receive_broadcast()](file:///c:/SMT%206/Progjar/G01/client.py#11-24) agar klien bisa menerima pesan broadcast (seperti "Client baru terhubung") secara asinkron tanpa mengganggu `input()` user yang bersifat *blocking*.
+### 1. [client.py](file:///c:/SMT%206/Progjar/G01/client.py) (Aplikasi Pengguna)
+Ini adalah program yang dijalankan oleh klien untuk berkomunikasi dengan server (menggunakan port 9000).
+*   **Koneksi (Socket):** `socket.connect((HOST, PORT))` menginisialisasi jalur TCP.
+*   **Loop Perintah:** Membaca input (ketikan) pengguna dengan `input('> ')`.
+*   **Mekanisme Upload/Download:** Saat command `/upload <file>` ditekan, *client* membaca besar ukuran file lokal (`os.path.getsize`), memberitahu server untuk bersiap (`READY`), kemudian mengirim ukuran byte total diikuti data isi file. Saat `/download`, *client* menerima ukuran byte dari server, lalu membuat file baru berisi data byte yang datang.
+*   **Broadcast Receive:** Berjalan di `thread` terpisah, sehingga klien tetap bisa menerima notifikasi obrolan/info dari pengguna lain meskipun sedang mengetik perintah.
 
-### B. [server-sync.py](file:///c:/SMT%206/Progjar/G01/server-sync.py) (Synchronous)
-Server ini adalah bentuk paling sederhana dan konvensional.
-*   **Cara Kerja:** Server memanggil `conn, addr = accept()`. Eksekusi program akan **berhenti** pada pemanggilan ini sampai ada client yang terkoneksi. Setelah terhubung, server memanggil [handle_client()](file:///c:/SMT%206/Progjar/G01/server-thread.py#97-143) yang bersifat *blocking loop*, membaca perintah dari klien tersebut.
-*   **Masalah Utama:** Selama server sedang melayani klien A (berada di dalam loop [handle_client](file:///c:/SMT%206/Progjar/G01/server-thread.py#97-143)), klien B yang mencoba terkoneksi akan dimasukkan ke dalam antrian sistem operasi (*backlog*) dan **tidak akan direspon** sampai klien A terputus.
+### 2️. [server-sync.py](file:///c:/SMT%206/Progjar/G01/server-sync.py) (Server Sederhana - *Synchronous*)
+Ini adalah bentuk server berbasis TCP yang paling dasar. 
+*   **Cara Kerja:** Server secara terus-menerus memanggil `accept()` untuk menunggu klien. Saat *Client A* tersambung, program masuk ke dalam blok/fungsi baru yang dinamakan [handle_client(conn)](file:///c:/SMT%206/Progjar/G01/server-thread.py#97-143).
+*   **Kelemahan & Blocking:** Selama [handle_client()](file:///c:/SMT%206/Progjar/G01/server-thread.py#97-143) berjalan menanggapi *Client A*, *Client B* yang mencoba terhubung akan tersendat dan masuk antrian panjang OS (statusnya *hanging* atau *blocking*). Server ini baru melayani *Client B* ketika *Client A* putus (`close()`).
 
-### C. [server-select.py](file:///c:/SMT%206/Progjar/G01/server-select.py) (I/O Multiplexing dengan `select()`)
-Server ini memecahkan masalah *blocking* pada [server-sync.py](file:///c:/SMT%206/Progjar/G01/server-sync.py) untuk bisa melayani >1 klien dalam satu proses (tanpa perlu thread/process baru).
-*   **Cara Kerja:** OS memantau sekelompok socket (*monitor list*). Fungsi `select.select(inputs, ...)` akan meminta OS untuk memberitahu socket mana saja yang siap ("readable"), entah itu server socket (berarti ada koneksi baru siap di-`accept()`) atau client socket (berarti ada data baru yang siap di-[recv()](file:///c:/SMT%206/Progjar/G01/server-sync.py#17-26)).
-*   **Fungsi Kunci (State Machine):** Mengingat non-blocking [recv()](file:///c:/SMT%206/Progjar/G01/server-sync.py#17-26) pada TCP tidak menjamin membaca satu pesan utuh sekaligus, `server-select` menggunakan variabel `client_state` untuk melacak status setiap klien (apakah sedang `idle`, atau sedang ditengah-tengah `upload_wait_size`). Buffer teks yang belum lengkap disimpan per-klien.
+### 3️. [server-thread.py](file:///c:/SMT%206/Progjar/G01/server-thread.py) (Server Multi-Klien - *Threading*)
+Implementasi solusi sederhana yang menyelesaikan masalah *blocking* pada `server-sync`.
+*   **Cara Kerja:** Begitu fungsi `accept()` menerima *Client A*, program tidak melayaninya langsung, melainkan "mendelegasikan" tugas *Client A* ke sebuah pekerja baru bernama *Thread* (`threading.Thread(target=handle_client)`). Setelah pendelegasian ini sukses, otak server (*Main Thread*) dengan cepat kembali siap meng-`accept()` *Client B* seketika itu juga.
+*   **Solusi Konflik:** Dilengkapi dengan sistem `threading.Lock()`, supaya daftar pengguna (`clients = []`) aman dari error ketidakstabilan akibat ditulis bersamaan secara tidak sengaja oleh beberapa obrolan klien berbeda (*Thread-safe*).
 
-### D. [server-poll.py](file:///c:/SMT%206/Progjar/G01/server-poll.py) (I/O Multiplexing dengan `poll()`)
-Sangat mirip dengan `select()`, namun lebih modern untuk sistem UNIX (Linux/macOS/WSL).
-*   **Cara Kerja:** Menggunakan `poller = select.poll()`. Berbeda dengan `select()` tradisional yang harus mengirim ulang daftar socket setiap kali pemanggilan (terbatas biasanya 1024 FD maksimal), `poll()` mendaftarkan *file descriptor* (FD) di level *kernel* (`poller.register()`). OS akan mengembalikan *event mask* (contoh: `select.POLLIN` berarti ada data masuk).
-*   **Catatan:** Syscall `poll()` tidak didukung oleh kernel Windows.
+### 4️. [server-select.py](file:///c:/SMT%206/Progjar/G01/server-select.py) (Server Multi-Klien - *I/O Multiplexing*)
+Pendekatan cerdas di mana Server dapat melayani banyak *client* sekaligus **tanpa** membutuhkan pekerja ekstra atau proses *thread* baru. Sangat menghemat memori.
+*   **Cara Kerja:** Mendaftarkan seluruh socket klien aktif ke dalam keranjang `inputs`. Lalu server memanggil syscall OS bernama `select.select(inputs)`. Fungsi ini akan berdiam diri (nganggur) hingga ia diberitahu *"ada 2 klien ini nih pak yang ngirim pesan baru"*.
+*   **State Machine:** Karena [recv()](file:///c:/SMT%206/Progjar/G01/server-sync.py#17-26) pada TCP tidak pasti datang sekaligus, server menyiasatinya. Misalnya kalau *Client A* sedang meng-upload sebuah file bergiga-giga, state variabelnya diubah menjadi `upload_wait_size`, dan tidak akan menghabiskan CPU untuk menungguinya karena server bisa sembari memproses *Client B*.
 
-### E. [server-thread.py](file:///c:/SMT%206/Progjar/G01/server-thread.py) (Concurrency dengan Multi-threading)
-Menggunakan pendekatan klasik untuk *concurrency*.
-*   **Cara Kerja:** Server tetap melakukan `accept()` yang berjalan *blocking* di *Main Thread*. Namun, setiap kali ada klien baru, server akan menciptakan pekerja baru: `threading.Thread(target=handle_client)`.
-*   **Kelebihan/Kekurangan:** Penulisan logikanya sangat mudah (hampir sama seperti [server-sync.py](file:///c:/SMT%206/Progjar/G01/server-sync.py)), karena setiap *thread* dapat melakukan operasi yang memakan waktu (*blocking*) tanpa menghentikan *thread* klien lainnya. Namun, jika ada ribuan klien, ribuan *thread* yang aktif bisa menghabiskan memori dan memberatkan *context switching* prosesor.
-*   **Locking:** Menggunakan `threading.Lock()` yang krusial pada fungsi [broadcast()](file:///c:/SMT%206/Progjar/G01/server-thread.py#42-52) untuk mencegah modifikasi terhadap list klien secara bersamaan (*Race Condition*) saat satu klien terkoneksi dan satu klien lain terputus.
+### 5️. [server-poll.py](file:///c:/SMT%206/Progjar/G01/server-poll.py) (Server Multi-Klien - *Poll Linux / WSL*)
+Ini adalah varian dari *Multiplexing* (sama fungsinya seperti `select`), dengan pendekatan *Event-based* menggunakan API `poller.register()` & `poller.poll()`. File ini menggunakan port `12345`.
+*   **Perbedaannya:** Daripada mengirim daftar puluhan hingga ribuan klien bolak-balik ke Kernel (yang terjadi pada *select()*), [poll()](file:///c:/SMT%206/Progjar/G01/server-poll.py#14-129) mendaftarkan ID (disebut tipe file *descriptor*) langsung ke memori kernel Linux hanya satu kali.
+*   **Cara Kerja Kode Anda:** Fungsi `events = poller.poll()` akan menanti. Bila salah satu *client* (*socket*) mengirimkan `hello`, kernel akan otomatis mengekstrak *file descriptor* yang cocok beserta tandanya (`select.POLLIN`), lalu merespons chat, atau jika yang datang `/upload`, ia siap menerima file.
+*   **Hanya Untuk Linux / Unix:** API [poll()](file:///c:/SMT%206/Progjar/G01/server-poll.py#14-129) khusus disiapkan pada Linux, sehingga Windows CMD akan gagal menjalankan file ini tanpa subsistem perantara (WSL).
 
 ---
 
-## 3. Eksekusi Uji Coba (Testing Guide)
+## 2. Cara Melakukan Pengujian (Testing)
 
-Anda membutuhkan setidaknya 2 Window/Tab Terminal di folder `c:\SMT 6\Progjar\G01\`.
+Karena Anda memiliki 4 variasi file Server, silakan ikuti petunjuk dua sub-skenario berikut ini. Gunakan dua terminal atau Command Prompt terpisah secara bersebelahan.
 
-### 1. Test One-on-One (`server-sync`)
-*   **Terminal 1:** `python server-sync.py`
-*   **Terminal 2:** `python client.py`
-*   Uji `/list`, `/upload`, dan `/download` di Terminal 2. File akan masuk ke `server_files/` (server) dan `downloads/` (klien).
-*   Jika Anda coba buka **Terminal 3**, klien akan nyangkut (*hanging*).
+### Skenario 1: Test Biasa (Windows & Linux)
+Bisa digunakan untuk File: [server-sync.py](file:///c:/SMT%206/Progjar/G01/server-sync.py), [server-thread.py](file:///c:/SMT%206/Progjar/G01/server-thread.py), [server-select.py](file:///c:/SMT%206/Progjar/G01/server-select.py) (Default: Port 9000)
 
-### 2. Test Multi-Client (`server-thread` atau `server-select`)
-*   **Terminal 1:** `python server-thread.py` (atau ganti jadi `server-select.py`)
-*   **Terminal 2:** `python client.py` (akan terhubung)
-*   **Terminal 3:** `python client.py` (akan terhubung)
-*   **Test Broadcast:** Saat Terminal 3 masuk, lihat output di Terminal 2. Terminal 2 akan langsung mendapat pesan: `[BROADCAST] Client baru terhubung dari ...`.
-*   **Test Interaktif:** Klien di Terminal 2 dan 3 bisa melakukan upload/download dan list file secara simultan tanpa ada satu klien menghalangi klien lain.
+**Terminal/CMD A (Menjalankan Server):**
+1. Buka CMD, ketik `cd "c:\SMT 6\Progjar\G01"` (sesuaikan path folder Anda).
+2. Jalankan kode server. Contoh instruksinya: `python server-thread.py`
 
-### 3. Test `server-poll` (Bila di sistem Linux / macOS / WSL)
-*   Ikuti langkah yang sama seperti Nomor 2 di atas, hanya saja jalankan `python server-poll.py`.
-*   *(Jika Anda menjalankannya pada CMD/Powershell Windows asli, script akan mendeteksinya dan mengeluarkan notifikasi Error dengan benar).*
+**Terminal/CMD B (Menjalankan Klien & Uji Interaksi):**
+1. Buka CMD ke-2 (di direktori yang sama dengan langkah 1).
+2. Jalankan klien TCP: `python client.py`
+3. Begitu terhubung, lakukan tes perintah ini satu persatu:
+   *   `/list` 👉 Cek folder server. (Harusnya kosong).
+   *   `/upload namaku.txt` 👉 Pilih salah satu file teks untuk dikirim ke atas Server.
+   *   `/list` 👉 Cek apakah file sudah muncul di sana.
+   *   `/download namaku.txt` 👉 Tarik kembali file dan pastikan muncul di sub-folder `downloads/`.
+**Catatan Penting Skenario 1:** Untuk tes sinkron [server-sync.py](file:///c:/SMT%206/Progjar/G01/server-sync.py), buka "Terminal C" baru lagi dan luncurkan [client.py](file:///c:/SMT%206/Progjar/G01/client.py) - Terminal tersebut akan terkunci / menunggu antrian, tidak bisa mengetik sampai Terminal B menutup programnya (ketik `/quit`). Ini tandanya [server-sync.py](file:///c:/SMT%206/Progjar/G01/server-sync.py) benar.
+
+---
+
+### Skenario 2: Test API Linux Poll (Khusus WSL Ubuntu/Debian)
+Eksklusif digunakan untuk File: [server-poll.py](file:///c:/SMT%206/Progjar/G01/server-poll.py) (Port 12345)
+
+**Terminal A (Linux WSL):**
+1. Luncurkan aplikasi "Ubuntu" atau "WSL" di Windows Search.
+2. Akses folder G01 sistem Windows melalui jalur `mnt`: `cd /mnt/c/SMT\ 6/Progjar/G01/`
+3. Hidupkan server Poll: `python3 server-poll.py` (Server ini jalan mandiri di Sub-sistem).
+4. Output muncul: `Poll Server ON di port 12345`
+
+**Terminal B (Testing Menggunakan Tool Bantu - Bebas di WSL / CMD Normal):**
+*(Klien kita tidak bisa langsung dikaitkan karena [server-poll.py](file:///c:/SMT%206/Progjar/G01/server-poll.py) menggunakan protokol beda format dan beda port (12345), jadi uji coba raw akan dilakukan:*
+1. Ketik instruksi ini di CMD Asli Windows Anda: `telnet localhost 12345`  
+   *(Jika Telnet belum aktif, cari di Windows 'turn on telnet client')*  
+   Atau jika menggunakan netcat WSL: `nc localhost 12345`.
+2. Ketik `/list` -> Anda dapat melihat output `Files on server: Empty`
+3. Buka **Terminal C** menggunakan tes netcat lagi ke Port 12345. Anda bisa menguji fitur **Broadcast Chat** bawaan `server-poll` dengan langsung asal mengetik di layar. Terminal netcat yang lainnya akan kebanjiran pesan dari klien yang sedang meracau.
+4. Apungkan `Ctrl+C` ketika selesai.
 
 
 ## Screenshot Hasil
