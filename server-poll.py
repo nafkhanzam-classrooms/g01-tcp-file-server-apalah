@@ -4,11 +4,9 @@ import os
 import sys
 import time
 
-# Konfigurasi Server
 PORT = 12345
 SERVER_DIR = "server_storage"
 
-# Pastikan folder penyimpanan tersedia
 if not os.path.exists(SERVER_DIR):
     os.makedirs(SERVER_DIR)
 
@@ -22,9 +20,8 @@ def start_poll_server():
     poller = select.poll()
     poller.register(server_socket, select.POLLIN)
 
-    # Mapping file descriptor ke object socket
     fd_to_socket = {server_socket.fileno(): server_socket}
-    clients = {} # {socket: addr}
+    clients = {}
 
     print(f"Poll Server ON di port {PORT}")
     print("Mode: I/O Multiplexing (Poll System Call)")
@@ -32,7 +29,6 @@ def start_poll_server():
 
     try:
         while True:
-            # Timeout 1000ms agar Ctrl+C bisa berfungsi
             events = poller.poll(1000)
 
             for fd, flag in events:
