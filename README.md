@@ -1,4 +1,4 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/mRmkZGKe)
+<img width="360" height="332" alt="image" src="https://github.com/user-attachments/assets/9433aeac-8ac4-4bcd-8f68-5aa29b983ced" />[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/mRmkZGKe)
 # Network Programming - Assignment G01
 
 ## Anggota Kelompok
@@ -156,17 +156,46 @@ Eksklusif digunakan untuk File: [server-poll.py](file:///c:/SMT%206/Progjar/G01/
 
 **Server**
 
+<img width="1267" height="417" alt="image" src="https://github.com/user-attachments/assets/a4f1d4f0-134a-4db3-b4b4-394b37cbf165" />
+
 
 **Client 1**
 
+<img width="827" height="279" alt="image" src="https://github.com/user-attachments/assets/94c231b1-58e8-4f69-9396-72cbf10d9108" />
+
+
 **Client 2**
+
+<img width="895" height="493" alt="image" src="https://github.com/user-attachments/assets/af493c2c-f5ce-4cf8-a7d8-cbdc595a0efb" />
+
+
 **Client 3**
+
+<img width="864" height="301" alt="image" src="https://github.com/user-attachments/assets/a0bce2f9-2a6c-47d7-9484-368a2a083f15" />
+
+
 **Files**
 
+<img width="360" height="332" alt="image" src="https://github.com/user-attachments/assets/3a5904f5-edbf-4d27-86b2-679725bf81b2" />
 
-### Server Select
+
+### Server Sync
+
+**Server**
+
+<img width="889" height="263" alt="image" src="https://github.com/user-attachments/assets/63bb53fd-4cab-467b-9e80-65495cba9c60" />
+
 
 **Client 1**
+
+<img width="816" height="372" alt="image" src="https://github.com/user-attachments/assets/d9d900d1-21a0-4f54-846c-835c411f7b1b" />
+
+
 **Client 2**
-**Client 3**
+
+<img width="823" height="185" alt="image" src="https://github.com/user-attachments/assets/7e271e35-0e5b-4287-add1-097b48db6d51" />
+
+
 **Files**
+
+<img width="351" height="387" alt="image" src="https://github.com/user-attachments/assets/92229ee2-3453-4392-badc-16711dff30f3" />
