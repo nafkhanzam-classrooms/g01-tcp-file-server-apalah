@@ -15,7 +15,7 @@ Link ditaruh di bawah ini
 
 ## Penjelasan Program
 
-# Laporan Penjelasan Kode TCP File Server (G01)
+# Penjelasan Kode TCP File Server (G01)
 
 Laporan ini berisi penjelasan singkat dan sederhana mengenai sistem **TCP File Server** yang telah diimplementasikan. Program ini terdiri dari satu file klien (Client) dan empat variasi file Server. Fungsi utamanya adalah menangani command `/list`, `/upload`, dan `/download`.
 
