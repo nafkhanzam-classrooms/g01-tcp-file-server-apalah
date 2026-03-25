@@ -10,35 +10,40 @@ SERVER_DIR = "server_storage"
 if not os.path.exists(SERVER_DIR):
     os.makedirs(SERVER_DIR)
 
-def start_select_server():
+def start_poll_server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind(('0.0.0.0', PORT))
     server_socket.listen(5)
-    server_socket.setblocking(False) 
+    server_socket.setblocking(False)
 
-    inputs = [server_socket]
+    poller = select.poll()
+    
+    poller.register(server_socket, select.POLLIN)
+
+    fd_to_socket = {server_socket.fileno(): server_socket}
     clients = {} 
 
-    print(f"Select Server ON di port {PORT}")
-    print("Mode: I/O Multiplexing (Single-threaded)")
+    print(f"Poll Server ON di port {PORT}")
+    print("Mode: I/O Multiplexing (Poll System Call)")
 
     try:
-        while inputs:
+        while True:
+            events = poller.poll(1000)
 
-            readable, _, exceptional = select.select(inputs, [], inputs, 1.0)
+            for fd, flag in events:
+                s = fd_to_socket[fd]
 
-            if not (readable or exceptional):
-                continue
-
-            for s in readable:
                 if s is server_socket:
                     conn, addr = s.accept()
                     print(f"[NEW CONNECTION] {addr}")
                     conn.setblocking(False)
-                    inputs.append(conn)
+                    
+                    poller.register(conn, select.POLLIN)
+                    fd_to_socket[conn.fileno()] = conn
                     clients[conn] = addr
-                else:
+
+                elif flag & select.POLLIN:
                     try:
                         raw_data = s.recv(1024)
                         if raw_data:
@@ -55,9 +60,8 @@ def start_select_server():
                                 filepath = os.path.join(SERVER_DIR, filename)
                                 
                                 s.send(b"READY_TO_RECEIVE")
-                                
                                 time.sleep(0.5) 
-
+                                
                                 s.setblocking(True)
                                 file_content = s.recv(10240)
                                 with open(filepath, "wb") as f:
@@ -79,26 +83,36 @@ def start_select_server():
                                     s.send(b"ERR: File tidak ditemukan")
 
                             else:
-                                # Broadcast Chat
                                 print(f"[{addr}] Chat: {data}")
                                 msg = f"{addr}: {data}".encode()
-                                for client_sock in inputs:
-                                    if client_sock not in [server_socket, s]:
-                                        try: client_sock.send(msg)
+                                for fd_idx in fd_to_socket:
+                                    sock = fd_to_socket[fd_idx]
+                                    if sock not in [server_socket, s]:
+                                        try: sock.send(msg)
                                         except: pass
                         else:
                             print(f"[DISCONNECTED] {clients[s]}")
-                            inputs.remove(s)
+                            poller.unregister(s)
+                            del fd_to_socket[fd]
                             del clients[s]
                             s.close()
                     except:
-                        if s in inputs: inputs.remove(s)
-                        if s in clients: del clients[s]
-                        s.close()
+                        if s in clients:
+                            poller.unregister(s)
+                            del fd_to_socket[fd]
+                            del clients[s]
+                            s.close()
+
+                elif flag & (select.POLLHUP | select.POLLERR):
+                    poller.unregister(s)
+                    del fd_to_socket[fd]
+                    if s in clients: del clients[s]
+                    s.close()
+
     except KeyboardInterrupt:
         print("\n[SHUTDOWN] Server OFF.")
     finally:
         server_socket.close()
 
 if __name__ == "__main__":
-    start_select_server()
+    start_poll_server()

@@ -27,7 +27,7 @@ def receive_messages(sock):
                 
                 print(f"[Selesai] File '{filename}' tersimpan di '{DOWNLOAD_DIR}'.")
             
-            elif data.startswith(b"ERR:"):
+            elif data.startswith(b"ERR:") or data.startswith(b"ERROR:"):
                 print(f"[Error Server] {data.decode()}")
             
             else:
@@ -68,10 +68,17 @@ def start_client():
                 
                 filename = parts[1]
                 if os.path.exists(filename):
-                    client.send(msg.encode())
-                    
+                    filesize = os.path.getsize(filename)
+
+                    # kirim command + ukuran file
+                    client.send(f"/upload {filename}\n".encode())
+                    time.sleep(0.1)
+                    client.send(f"{filesize}\n".encode())
+
+                    # kirim isi file
                     with open(filename, "rb") as f:
                         client.sendall(f.read())
+
                     print(f"Sedang mengupload '{filename}'...")
                 else:
                     print(f"File '{filename}' tidak ditemukan di folder lokal.")
@@ -79,7 +86,9 @@ def start_client():
                     sys.stdout.flush()
             
             else:
-                client.send(msg.encode())
+                # 🔥 FIX: tambahin newline
+                client.send((msg + "\n").encode())
+
                 if msg.startswith("/download"):
                     print("Meminta file ke server...")
 
