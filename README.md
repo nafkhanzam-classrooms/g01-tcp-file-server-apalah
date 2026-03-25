@@ -1,4 +1,4 @@
-<img width="360" height="332" alt="image" src="https://github.com/user-attachments/assets/9433aeac-8ac4-4bcd-8f68-5aa29b983ced" />[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/mRmkZGKe)
+[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/mRmkZGKe)
 # Network Programming - Assignment G01
 
 ## Anggota Kelompok
