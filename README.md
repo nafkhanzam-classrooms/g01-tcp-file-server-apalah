@@ -95,3 +95,43 @@ Eksklusif digunakan untuk File: [server-poll.py](file:///c:/SMT%206/Progjar/G01/
 
 
 ## Screenshot Hasil
+
+### Server Threading
+
+**Server**
+
+
+**Client 1**
+
+**Client 2**
+
+**Client 3**
+
+**Files**
+
+
+### Server Select
+
+**Client 1**
+
+**Client 2**
+
+**Client 3**
+
+**Files**
+
+
+### Server Poll
+
+**Client 1**
+**Client 2**
+**Client 3**
+**Files**
+
+
+### Server Select
+
+**Client 1**
+**Client 2**
+**Client 3**
+**Files**
