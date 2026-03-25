@@ -15,7 +15,7 @@ Link ditaruh di bawah ini
 
 ## Penjelasan Program
 
-# Penjelasan Kode TCP File Server (G01)
+# Laporan Penjelasan Kode TCP File Server (G01)
 
 Laporan ini berisi penjelasan singkat dan sederhana mengenai sistem **TCP File Server** yang telah diimplementasikan. Program ini terdiri dari satu file klien (Client) dan empat variasi file Server. Fungsi utamanya adalah menangani command `/list`, `/upload`, dan `/download`.
 
@@ -23,7 +23,7 @@ Laporan ini berisi penjelasan singkat dan sederhana mengenai sistem **TCP File S
 
 ## 1. Penjelasan Masing-Masing File
 
-### 1. [client.py](file:///c:/SMT%206/Progjar/G01/client.py) (Aplikasi Pengguna)
+### 1️. [client.py](file:///c:/SMT%206/Progjar/G01/client.py) (Aplikasi Pengguna)
 Ini adalah program yang dijalankan oleh klien untuk berkomunikasi dengan server (menggunakan port 9000).
 *   **Koneksi (Socket):** `socket.connect((HOST, PORT))` menginisialisasi jalur TCP.
 *   **Loop Perintah:** Membaca input (ketikan) pengguna dengan `input('> ')`.
@@ -68,10 +68,10 @@ Bisa digunakan untuk File: [server-sync.py](file:///c:/SMT%206/Progjar/G01/serve
 1. Buka CMD ke-2 (di direktori yang sama dengan langkah 1).
 2. Jalankan klien TCP: `python client.py`
 3. Begitu terhubung, lakukan tes perintah ini satu persatu:
-   *   `/list` 👉 Cek folder server. (Harusnya kosong).
-   *   `/upload namaku.txt` 👉 Pilih salah satu file teks untuk dikirim ke atas Server.
-   *   `/list` 👉 Cek apakah file sudah muncul di sana.
-   *   `/download namaku.txt` 👉 Tarik kembali file dan pastikan muncul di sub-folder `downloads/`.
+   *   `/list` Cek folder server. (Harusnya kosong).
+   *   `/upload namaku.txt` Pilih salah satu file teks untuk dikirim ke atas Server.
+   *   `/list` Cek apakah file sudah muncul di sana.
+   *   `/download namaku.txt` Tarik kembali file dan pastikan muncul di sub-folder `downloads/`.
 **Catatan Penting Skenario 1:** Untuk tes sinkron [server-sync.py](file:///c:/SMT%206/Progjar/G01/server-sync.py), buka "Terminal C" baru lagi dan luncurkan [client.py](file:///c:/SMT%206/Progjar/G01/client.py) - Terminal tersebut akan terkunci / menunggu antrian, tidak bisa mengetik sampai Terminal B menutup programnya (ketik `/quit`). Ini tandanya [server-sync.py](file:///c:/SMT%206/Progjar/G01/server-sync.py) benar.
 
 ---
