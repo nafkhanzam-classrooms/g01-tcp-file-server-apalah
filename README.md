@@ -99,20 +99,28 @@ Eksklusif digunakan untuk File: [server-poll.py](file:///c:/SMT%206/Progjar/G01/
 ### Server Threading
 
 **Server**
-
+<img width="895" height="275" alt="image" src="https://github.com/user-attachments/assets/da17c42d-a7ba-45ae-8c70-939efcd43e3f" />
 
 **Client 1**
+<img width="839" height="340" alt="image" src="https://github.com/user-attachments/assets/42b0c5fd-bdc6-440f-8af6-38ace698e259" />
 
 **Client 2**
+<img width="828" height="318" alt="image" src="https://github.com/user-attachments/assets/45bb5dd6-e59d-432a-b9d7-cd17d0227f91" />
 
 **Client 3**
+<img width="827" height="299" alt="image" src="https://github.com/user-attachments/assets/8d33561b-da96-4dfd-b273-6b5911e40076" />
 
 **Files**
+<img width="356" height="116" alt="image" src="https://github.com/user-attachments/assets/05c762b4-22bf-4feb-94aa-ffa838f4f709" />
 
 
 ### Server Select
 
+**Server**
+
+
 **Client 1**
+
 
 **Client 2**
 
